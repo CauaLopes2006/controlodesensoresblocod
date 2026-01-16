@@ -1,63 +1,491 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <title>Home Page</title>
-    <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            font-family: Arial, Helvetica, sans-serif;
-            background: linear-gradient(135deg,
-                #ff6b6b,
-                #f7d794,
-                #70a1ff,
-                #7bed9f
-            );
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .container {
-            text-align: center;
-            color: #0b3c5d;
-        }
-        h1 {
-            font-size: 48px;
-            margin-bottom: 10px;
-            color: #2c94fd;
-        }
-        p {
-            font-size: 18px;
-            margin-bottom: 25px;
-        }
-        .menu a {
-            display: block;
-            text-decoration: none;
-            color: #0b3c5d;
-            font-size: 18px;
-            margin: 8px 0;
-            padding: 6px;
-        }
-        .menu a:hover {
-            text-decoration: underline;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Site de Sensores - Bloco D</title>
+
+  <!-- Chart.js (para o gráfico) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#121824;
+      --panel2:#0f1520;
+      --border:rgba(255,255,255,.08);
+      --text:#e7eefc;
+      --muted:#9fb0cc;
+      --green:#2ee07a;
+      --green2:#10c86a;
+      --shadow: 0 14px 30px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 500px at 20% -10%, rgba(46,224,122,.12), transparent 70%),
+                  radial-gradient(900px 500px at 90% 0%, rgba(80,140,255,.10), transparent 65%),
+                  var(--bg);
+      color:var(--text);
+    }
+
+    /* Topbar */
+    .topbar{
+      height:64px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 18px;
+      border-bottom:1px solid var(--border);
+      background: rgba(10,14,20,.7);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top:0;
+      z-index:10;
+    }
+    .brand{
+      display:flex; gap:10px; align-items:center;
+      font-weight:700;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;background:var(--green);
+      box-shadow:0 0 18px rgba(46,224,122,.45);
+    }
+    .nav{
+      display:flex; gap:10px; align-items:center;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .nav a{
+      color:var(--muted);
+      text-decoration:none;
+      padding:8px 10px;
+      border-radius:10px;
+    }
+    .nav a.active{
+      color:var(--text);
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--border);
+    }
+
+    /* Layout */
+    .wrap{ max-width: 1200px; margin: 18px auto; padding: 0 14px; }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr 1.2fr .8fr .8fr;
+      gap:14px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), transparent 70%), var(--panel);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:14px;
+      min-height: 140px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card h3{
+      margin:0 0 10px 0;
+      font-size: 13px;
+      letter-spacing:.2px;
+      color:var(--muted);
+      font-weight:600;
+      display:flex; align-items:center; gap:8px;
+    }
+    .value{
+      font-size: 34px;
+      font-weight: 800;
+      line-height:1.1;
+    }
+    .sub{
+      color:var(--muted);
+      font-size: 12px;
+      margin-top:6px;
+    }
+
+    /* Sizes / spans */
+    .span-2{ grid-column: span 2; }
+    .span-4{ grid-column: span 4; }
+    .tall{ min-height: 220px; }
+    .map{ min-height: 220px; padding:0; }
+    .map .inner{ padding:14px; }
+    .mapbox{
+      height: 220px;
+      border-top:1px solid var(--border);
+      background: radial-gradient(circle at 30% 30%, rgba(80,140,255,.22), transparent 55%),
+                  radial-gradient(circle at 70% 60%, rgba(46,224,122,.20), transparent 55%),
+                  linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:rgba(231,238,252,.75);
+      font-weight:700;
+      letter-spacing:.5px;
+    }
+
+    /* Gauge */
+    .gaugeWrap{ display:flex; align-items:center; gap:14px; }
+    .gauge{
+      width: 170px; height: 100px;
+      position:relative;
+    }
+    .gauge svg{ width:100%; height:100%; display:block; }
+    .gauge .num{
+      position:absolute;
+      left:50%;
+      bottom:-6px;
+      transform:translateX(-50%);
+      font-weight:800;
+      font-size: 26px;
+    }
+    .pill{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      font-size: 12px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+    .ok{ color: var(--green); font-weight:700; }
+
+    /* Chart */
+    .chartBox{ height: 240px; }
+    canvas{ width:100% !important; height:100% !important; }
+
+    /* Controls */
+    .controls{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:12px;
+      align-items:end;
+    }
+    .ctrl{
+      background: var(--panel2);
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding:10px;
+      min-height: 120px;
+    }
+    .ctrl .label{
+      color:var(--muted);
+      font-size:12px;
+      display:flex; justify-content:space-between; gap:10px;
+      margin-bottom:8px;
+    }
+    input[type="range"]{
+      width:100%;
+      accent-color: var(--green);
+    }
+
+    /* Toggles */
+    .toggles{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    .toggleCard{
+      background: var(--panel2);
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      min-height:84px;
+    }
+    .toggleCard .tlabel{
+      display:flex; flex-direction:column;
+      gap:4px;
+    }
+    .toggleCard .tlabel strong{ font-size:14px; }
+    .toggleCard .tlabel span{ font-size:12px; color:var(--muted); }
+
+    /* Switch */
+    .switch{ position:relative; width:56px; height:32px; }
+    .switch input{ display:none; }
+    .slider{
+      position:absolute; inset:0;
+      background: rgba(255,255,255,.10);
+      border:1px solid var(--border);
+      border-radius:999px;
+      cursor:pointer;
+      transition: .2s;
+    }
+    .slider:before{
+      content:"";
+      position:absolute;
+      width:24px;height:24px;
+      left:4px; top:50%;
+      transform:translateY(-50%);
+      border-radius:999px;
+      background: rgba(231,238,252,.9);
+      transition:.2s;
+    }
+    .switch input:checked + .slider{
+      background: rgba(46,224,122,.25);
+      border-color: rgba(46,224,122,.45);
+    }
+    .switch input:checked + .slider:before{
+      left:28px;
+      background: var(--green);
+      box-shadow:0 0 18px rgba(46,224,122,.35);
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr 1fr; }
+      .span-4{ grid-column: span 2; }
+      .span-2{ grid-column: span 2; }
+      .controls{ grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px){
+      .grid{ grid-template-columns: 1fr; }
+      .span-4,.span-2{ grid-column: span 1; }
+      .toggles{ grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
+
 <body>
-
-    <div class="container">
-        <h1>Home Page</h1>
-        <p>Welcome!</p>
-..................................................................
-        <div class="menu">
-            <a href="https://www.youtube.com/watch?v=lNC2iEILxh0">Links</a>
-            <a href="data:image/jpeg;base64,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">Images</a>
-            <a href="https://www.youtube.com/watch?v=lNC2iEILxh0">Videos</a>
-            <a href="https://www.myinstants.com/pt/instant/fahhhhhhhhhhhhhh-3525/">Audios</a>
-..................................................................
-        </div>
+  <header class="topbar">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>Site de Sensores <span style="color:var(--muted);font-weight:600;">· Bloco D</span></div>
     </div>
+    <nav class="nav">
+      <a class="active" href="#">Início</a>
+      <a href="#">Devices & Sensors</a>
+      <a href="#">Logs</a>
+      <a href="#">Settings</a>
+    </nav>
+  </header>
 
+  <main class="wrap">
+    <section class="grid">
+      <!-- Gauge (LIMI) -->
+      <div class="card span-2 tall">
+        <h3>🟢 LIMI</h3>
+        <div class="gaugeWrap">
+          <div class="gauge" id="gauge">
+            <!-- semicircle gauge -->
+            <svg viewBox="0 0 200 120">
+              <!-- background arc -->
+              <path d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="16" stroke-linecap="round"/>
+              <!-- value arc -->
+              <path id="gaugeArc" d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="var(--green)" stroke-width="16" stroke-linecap="round"
+                    stroke-dasharray="251" stroke-dashoffset="251"/>
+            </svg>
+            <div class="num"><span id="limiVal">65</span></div>
+          </div>
+
+          <div>
+            <div class="pill">Estado: <span class="ok" id="limiState">OK</span></div>
+            <div class="sub" style="margin-top:10px">
+              Exemplo: pode representar um nível, percentagem, limite, qualidade do ar, etc.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="card map span-2">
+        <div class="inner">
+          <h3>📍 Location</h3>
+          <div class="sub">Escola Secundária Manuel Teixeira Gomes<br>
+                            Portimão, Portugal</div>
+       <div class="mapbox" style="padding:0;">
+  <iframe
+    src="https://www.google.com/maps?q=Escola%20Secund%C3%A1ria%20Manuel%20Teixeira%20Gomes%20Portim%C3%A3o&output=embed"
+    width="100%"
+    height="220"
+    style="border:0;"
+    allowfullscreen=""
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade">
+  </iframe>
+</div>
+
+
+      <!-- Current Temp -->
+      <div class="card">
+        <h3>🌡️ Current Temp</h3>
+        <div class="value"><span id="tempVal">24.6</span>°C</div>
+        <div class="sub">Última leitura: <span id="tempAge">agora</span></div>
+      </div>
+
+      <!-- Humidity -->
+      <div class="card">
+        <h3>💧 Humidity</h3>
+        <div class="value"><span id="humVal">58</span>%</div>
+        <div class="sub">Última leitura: <span id="humAge">agora</span></div>
+      </div>
+
+      <!-- Chart -->
+      <div class="card span-4">
+        <h3>📈 Temperature & Humidity</h3>
+        <div class="chartBox">
+          <canvas id="thChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Controls + Toggles -->
+      <div class="card span-4">
+        <h3>🎛️ Controls</h3>
+
+        <div class="controls">
+          <div class="ctrl">
+            <div class="label"><span>Min Temp</span><span><b id="minT">18</b>°C</span></div>
+            <input id="minTSlider" type="range" min="0" max="40" value="18">
+          </div>
+          <div class="ctrl">
+            <div class="label"><span>Max Temp</span><span><b id="maxT">28</b>°C</span></div>
+            <input id="maxTSlider" type="range" min="0" max="40" value="28">
+          </div>
+          <div class="ctrl">
+            <div class="label"><span>Min Hum</span><span><b id="minH">40</b>%</span></div>
+            <input id="minHSlider" type="range" min="0" max="100" value="40">
+          </div>
+          <div class="ctrl">
+            <div class="label"><span>Max Hum</span><span><b id="maxH">75</b>%</span></div>
+            <input id="maxHSlider" type="range" min="0" max="100" value="75">
+          </div>
+        </div>
+
+        <div class="toggles">
+          <div class="toggleCard">
+            <div class="tlabel">
+              <strong>System</strong>
+              <span id="sysStateTxt">ON</span>
+            </div>
+            <label class="switch">
+              <input id="sysToggle" type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="toggleCard">
+            <div class="tlabel">
+              <strong>Sprinkler 01</strong>
+              <span id="sprStateTxt">OFF</span>
+            </div>
+            <label class="switch">
+              <input id="sprToggle" type="checkbox">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="sub" style="margin-top:10px">
+          Nota: estes controlos depois enviam para o Arduino/ESP (ex.: /api/control).
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // --------- Gauge (LIMI) ----------
+    function setGauge(value, max=100){
+      const v = Math.max(0, Math.min(max, value));
+      document.getElementById("limiVal").textContent = v.toFixed(0);
+
+      // Stroke length ~ 251 (semi-arc). 0 = cheio, 251 = vazio
+      const total = 251;
+      const offset = total - (v / max) * total;
+      document.getElementById("gaugeArc").style.strokeDashoffset = offset;
+
+      document.getElementById("limiState").textContent = (v >= 50) ? "OK" : "ALERTA";
+    }
+    setGauge(65);
+
+    // --------- Chart ----------
+    const ctx = document.getElementById('thChart');
+    const labels = Array.from({length: 12}, (_, i) => `${i*5}m`);
+    const tempData = [24.2,24.3,24.4,24.6,24.5,24.7,24.6,24.8,24.9,24.7,24.6,24.6];
+    const humData  = [56,57,57,58,58,59,60,60,59,58,58,58];
+
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label:'Temperatura (°C)', data: tempData, tension:.35, borderWidth:2, pointRadius:2 },
+          { label:'Humidade (%)', data: humData, tension:.35, borderWidth:2, pointRadius:2 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#cfe0ff' } }
+        },
+        scales: {
+          x: { ticks: { color: '#9fb0cc' }, grid: { color:'rgba(255,255,255,.06)' } },
+          y: { ticks: { color: '#9fb0cc' }, grid: { color:'rgba(255,255,255,.06)' } }
+        }
+      }
+    });
+
+    // --------- Controls (sliders) ----------
+    const bindSlider = (sliderId, outId, suffix, onChange) => {
+      const s = document.getElementById(sliderId);
+      const o = document.getElementById(outId);
+      const update = () => {
+        o.textContent = s.value;
+        if(onChange) onChange(Number(s.value));
+      };
+      s.addEventListener('input', update);
+      update();
+    };
+
+    bindSlider("minTSlider","minT","°C");
+    bindSlider("maxTSlider","maxT","°C");
+    bindSlider("minHSlider","minH","%");
+    bindSlider("maxHSlider","maxH","%");
+
+    // --------- Toggles ----------
+    const sysToggle = document.getElementById("sysToggle");
+    const sprToggle = document.getElementById("sprToggle");
+
+    function updateToggleText(){
+      document.getElementById("sysStateTxt").textContent = sysToggle.checked ? "ON" : "OFF";
+      document.getElementById("sprStateTxt").textContent = sprToggle.checked ? "ON" : "OFF";
+    }
+    sysToggle.addEventListener("change", () => {
+      updateToggleText();
+      // TODO: enviar para o Arduino/ESP
+      // fetch('/api/control', {method:'POST', headers:{'Content-Type':'application/json'},
+      // body: JSON.stringify({system: sysToggle.checked})});
+    });
+    sprToggle.addEventListener("change", () => {
+      updateToggleText();
+      // TODO: enviar para o Arduino/ESP
+      // fetch('/api/control', {method:'POST', headers:{'Content-Type':'application/json'},
+      // body: JSON.stringify({sprinkler1: sprToggle.checked})});
+    });
+    updateToggleText();
+
+    // --------- Simulação de leituras ao vivo (depois trocamos por fetch ao Arduino/ESP) ----------
+    setInterval(() => {
+      const t = (24 + Math.random()).toFixed(1);
+      const h = (56 + Math.random()*6).toFixed(0);
+
+      document.getElementById("tempVal").textContent = t;
+      document.getElementById("humVal").textContent = h;
+
+      // Atualiza chart
+      tempData.push(Number(t)); tempData.shift();
+      humData.push(Number(h)); humData.shift();
+      chart.update();
+
+      // Atualiza gauge com base em algo (exemplo)
+      setGauge(50 + Math.random()*50);
+    }, 5000);
+  </script>
 </body>
 </html>
