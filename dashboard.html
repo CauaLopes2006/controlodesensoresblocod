@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Site de Sensores - Bloco D</title>
+
+  <!-- Chart.js (para o gráfico) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#121824;
+      --panel2:#0f1520;
+      --border:rgba(255,255,255,.08);
+      --text:#e7eefc;
+      --muted:#9fb0cc;
+      --green:#2ee07a;
+      --green2:#10c86a;
+      --shadow: 0 14px 30px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 500px at 20% -10%, rgba(46,224,122,.12), transparent 70%),
+                  radial-gradient(900px 500px at 90% 0%, rgba(80,140,255,.10), transparent 65%),
+                  var(--bg);
+      color:var(--text);
+    }
+
+    /* Topbar */
+    .topbar{
+      height:64px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 18px;
+      border-bottom:1px solid var(--border);
+      background: rgba(10,14,20,.7);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top:0;
+      z-index:10;
+    }
+    .brand{
+      display:flex; gap:10px; align-items:center;
+      font-weight:700;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;background:var(--green);
+      box-shadow:0 0 18px rgba(46,224,122,.45);
+    }
+    .nav{
+      display:flex; gap:10px; align-items:center;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .nav a{
+      color:var(--muted);
+      text-decoration:none;
+      padding:8px 10px;
+      border-radius:10px;
+    }
+    .nav a.active{
+      color:var(--text);
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--border);
+    }
+
+    /* Layout */
+    .wrap{ max-width: 1200px; margin: 18px auto; padding: 0 14px; }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr 1.2fr .8fr .8fr;
+      gap:14px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), transparent 70%), var(--panel);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:14px;
+      min-height: 140px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card h3{
+      margin:0 0 10px 0;
+      font-size: 13px;
+      letter-spacing:.2px;
+      color:var(--muted);
+      font-weight:600;
+      display:flex; align-items:center; gap:8px;
+    }
+    .value{
+      font-size: 34px;
+      font-weight: 800;
+      line-height:1.1;
+    }
+    .sub{
+      color:var(--muted);
+      font-size: 12px;
+      margin-top:6px;
+    }
+
+    /* Sizes / spans */
+    .span-2{ grid-column: span 2; }
+    .span-4{ grid-column: span 4; }
+    .tall{ min-height: 220px; }
+    .map{ min-height: 220px; padding:0; }
+    .map .inner{ padding:14px; }
+    .mapbox{
+      height: 220px;
+      border-top:1px solid var(--border);
+      background: radial-gradient(circle at 30% 30%, rgba(80,140,255,.22), transparent 55%),
+                  radial-gradient(circle at 70% 60%, rgba(46,224,122,.20), transparent 55%),
+                  linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:rgba(231,238,252,.75);
+      font-weight:700;
+      letter-spacing:.5px;
+    }
+
+    /* Gauge */
+    .gaugeWrap{ display:flex; align-items:center; gap:14px; }
+    .gauge{
+      width: 170px; height: 100px;
+      position:relative;
+    }
+    .gauge svg{ width:100%; height:100%; display:block; }
+    .gauge .num{
+      position:absolute;
+      left:50%;
+      bottom:-6px;
+      transform:translateX(-50%);
+      font-weight:800;
+      font-size: 26px;
+    }
+    .pill{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      font-size: 12px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+    .ok{ color: var(--green); font-weight:700; }
+
+    /* Chart */
+    .chartBox{ height: 240px; }
+    canvas{ width:100% !important; height:100% !important; }
+
+    /* Controls */
+    .controls{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:12px;
+      align-items:end;
+    }
+    .ctrl{
+      background: var(--panel2);
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding:10px;
+      min-height: 120px;
+    }
+    .ctrl .label{
+      color:var(--muted);
+      font-size:12px;
+      display:flex; justify-content:space-between; gap:10px;
+      margin-bottom:8px;
+    }
+    input[type="range"]{
+      width:100%;
+      accent-color: var(--green);
+    }
+
+    /* Toggles */
+    .toggles{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    .toggleCard{
+      background: var(--panel2);
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      min-height:84px;
+    }
+    .toggleCard .tlabel{
+      display:flex; flex-direction:column;
+      gap:4px;
+    }
+    .toggleCard .tlabel strong{ font-size:14px; }
+    .toggleCard .tlabel span{ font-size:12px; color:var(--muted); }
+
+    /* Switch */
+    .switch{ position:relative; width:56px; height:32px; }
+    .switch input{ display:none; }
+    .slider{
+      position:absolute; inset:0;
+      background: rgba(255,255,255,.10);
+      border:1px solid var(--border);
+      border-radius:999px;
+      cursor:pointer;
+      transition: .2s;
+    }
+    .slider:before{
+      content:"";
+      position:absolute;
+      width:24px;height:24px;
+      left:4px; top:50%;
+      transform:translateY(-50%);
+      border-radius:999px;
+      background: rgba(231,238,252,.9);
+      transition:.2s;
+    }
+    .switch input:checked + .slider{
+      background: rgba(46,224,122,.25);
+      border-color: rgba(46,224,122,.45);
+    }
+    .switch input:checked + .slider:before{
+      left:28px;
+      background: var(--green);
+      box-shadow:0 0 18px rgba(46,224,122,.35);
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr 1fr; }
+      .span-4{ grid-column: span 2; }
+      .span-2{ grid-column: span 2; }
+      .controls{ grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px){
+      .grid{ grid-template-columns: 1fr; }
+      .span-4,.span-2{ grid-column: span 1; }
+      .toggles{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>Site de Sensores <span style="color:var(--muted);font-weight:600;">· Bloco D</span></div>
+    </div>
+    <nav class="nav">
+      <a class="active" href="#">Início</a>
+      <a href="#">Devices & Sensors</a>
+      <a href="#">Logs</a>
+      <a href="#">Settings</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="grid">
+      <!-- Gauge (LIMI) -->
+      <div class="card span-2 tall">
+        <h3>🟢 LIMI</h3>
+        <div class="gaugeWrap">
+          <div class="gauge" id="gauge">
+            <!-- semicircle gauge -->
+            <svg viewBox="0 0 200 120">
+              <!-- background arc -->
+              <path d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="16" stroke-linecap="round"/>
+              <!-- value arc -->
+              <path id="gaugeArc" d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="var(--green)" stroke-width="16" stroke-linecap="round"
+                    stroke-dasharray="251" stroke-dashoffset="251"/>
+            </svg>
+            <div class="num"><span id="limiVal">65</span></div>
+          </div>
+
+          <div>
+            <div class="pill">Estado: <span class="ok" id="limiState">OK</span></div>
+            <div class="sub" style="margin-top:10px">
+              Exemplo: pode representar um nível, percentagem, limite, qualidade do ar, etc.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="card map span-2">
+        <div class="inner">
+          <h3>📍 Location</h3>
+          <div class="sub">Escola Secundária Manuel Teixeira Gomes<br>
+                            Portimão, Portugal</div>
+       <div class="mapbox" style="padding:0;">
+  <iframe
+    src="https://www.google.com/maps?q=Escola%20Secund%C3%A1ria%20Manuel%20Teixeira%20Gomes%20Portim%C3%A3o&output=embed"
+    width="100%"
+    height="220"
+    style="border:0;"
+    allowfullscreen=""
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade">
+  </iframe>
+</div>
+
+
+      <!-- Current Temp -->
+      <div class="card">
+        <h3>🌡️ Current Temp</h3>
+        <div class="value"><span id="tempVal">24.6</span>°C</div>
+        <div class="sub">Última leitura: <span id="tempAge">agora</span></div>
+      </div>
+
+      <!-- Humidity -->
+      <div class="card">
+        <h3>💧 Humidity</h3>
+        <div class="value"><span id="humVal">58</span>%</div>
+        <div class="sub">Última leitura: <span id="humAge">agora</span></div>
+      </div>
+
+      <!-- Chart -->
+      <div class="card span-4">
+        <h3>📈 Temperature & Humidity</h3>
+        <div class="chartBox">
+          <canvas id="thChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Controls + Toggles -->
+      <div class="card span-4">
+        <h3>🎛️ Controls</h3>
+
+        <div class="controls">
+          <div class="ctrl">
+            <div class="label"><span>Min Temp</span><span><b id="minT">18</b>°C</span></div>
+            <input id="minTSlider" type="range" min="0" max="40" value="18">
+          </div>
+          <div class="ctrl">
+            <div class="label"><span>Max Temp</span><span><b id="maxT">28</b>°C</span></div>
+            <input id="maxTSlider" type="range" min="0" max="40" value="28">
+          </div>
+          <div class="ctrl">
+            <div class="label"><span>Min Hum</span><span><b id="minH">40</b>%</span></div>
+            <input id="minHSlider" type="range" min="0" max="100" value="40">
+          </div>
+          <div class="ctrl">
+            <div class="label"><span>Max Hum</span><span><b id="maxH">75</b>%</span></div>
+            <input id="maxHSlider" type="range" min="0" max="100" value="75">
+          </div>
+        </div>
+
+        <div class="toggles">
+          <div class="toggleCard">
+            <div class="tlabel">
+              <strong>System</strong>
+              <span id="sysStateTxt">ON</span>
+            </div>
+            <label class="switch">
+              <input id="sysToggle" type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="toggleCard">
+            <div class="tlabel">
+              <strong>Sprinkler 01</strong>
+              <span id="sprStateTxt">OFF</span>
+            </div>
+            <label class="switch">
+              <input id="sprToggle" type="checkbox">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="sub" style="margin-top:10px">
+          Nota: estes controlos depois enviam para o Arduino/ESP (ex.: /api/control).
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // --------- Gauge (LIMI) ----------
+    function setGauge(value, max=100){
+      const v = Math.max(0, Math.min(max, value));
+      document.getElementById("limiVal").textContent = v.toFixed(0);
+
+      // Stroke length ~ 251 (semi-arc). 0 = cheio, 251 = vazio
+      const total = 251;
+      const offset = total - (v / max) * total;
+      document.getElementById("gaugeArc").style.strokeDashoffset = offset;
+
+      document.getElementById("limiState").textContent = (v >= 50) ? "OK" : "ALERTA";
+    }
+    setGauge(65);
+
+    // --------- Chart ----------
+    const ctx = document.getElementById('thChart');
+    const labels = Array.from({length: 12}, (_, i) => `${i*5}m`);
+    const tempData = [24.2,24.3,24.4,24.6,24.5,24.7,24.6,24.8,24.9,24.7,24.6,24.6];
+    const humData  = [56,57,57,58,58,59,60,60,59,58,58,58];
+
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label:'Temperatura (°C)', data: tempData, tension:.35, borderWidth:2, pointRadius:2 },
+          { label:'Humidade (%)', data: humData, tension:.35, borderWidth:2, pointRadius:2 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#cfe0ff' } }
+        },
+        scales: {
+          x: { ticks: { color: '#9fb0cc' }, grid: { color:'rgba(255,255,255,.06)' } },
+          y: { ticks: { color: '#9fb0cc' }, grid: { color:'rgba(255,255,255,.06)' } }
+        }
+      }
+    });
+
+    // --------- Controls (sliders) ----------
+    const bindSlider = (sliderId, outId, suffix, onChange) => {
+      const s = document.getElementById(sliderId);
+      const o = document.getElementById(outId);
+      const update = () => {
+        o.textContent = s.value;
+        if(onChange) onChange(Number(s.value));
+      };
+      s.addEventListener('input', update);
+      update();
+    };
+
+    bindSlider("minTSlider","minT","°C");
+    bindSlider("maxTSlider","maxT","°C");
+    bindSlider("minHSlider","minH","%");
+    bindSlider("maxHSlider","maxH","%");
+
+    // --------- Toggles ----------
+    const sysToggle = document.getElementById("sysToggle");
+    const sprToggle = document.getElementById("sprToggle");
+
+    function updateToggleText(){
+      document.getElementById("sysStateTxt").textContent = sysToggle.checked ? "ON" : "OFF";
+      document.getElementById("sprStateTxt").textContent = sprToggle.checked ? "ON" : "OFF";
+    }
+    sysToggle.addEventListener("change", () => {
+      updateToggleText();
+      // TODO: enviar para o Arduino/ESP
+      // fetch('/api/control', {method:'POST', headers:{'Content-Type':'application/json'},
+      // body: JSON.stringify({system: sysToggle.checked})});
+    });
+    sprToggle.addEventListener("change", () => {
+      updateToggleText();
+      // TODO: enviar para o Arduino/ESP
+      // fetch('/api/control', {method:'POST', headers:{'Content-Type':'application/json'},
+      // body: JSON.stringify({sprinkler1: sprToggle.checked})});
+    });
+    updateToggleText();
+
+    // --------- Simulação de leituras ao vivo (depois trocamos por fetch ao Arduino/ESP) ----------
+    setInterval(() => {
+      const t = (24 + Math.random()).toFixed(1);
+      const h = (56 + Math.random()*6).toFixed(0);
+
+      document.getElementById("tempVal").textContent = t;
+      document.getElementById("humVal").textContent = h;
+
+      // Atualiza chart
+      tempData.push(Number(t)); tempData.shift();
+      humData.push(Number(h)); humData.shift();
+      chart.update();
+
+      // Atualiza gauge com base em algo (exemplo)
+      setGauge(50 + Math.random()*50);
+    }, 5000);
+  </script>
+</body>
+</html>
