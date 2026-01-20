@@ -27,24 +27,47 @@
     <img id="plantaImg" src="assets/plantas/piso2.jpg" alt="Planta do Bloco D">
 
     <!-- SALAS (ajusta posições) -->
-    <div class="sala" data-name="D01"
-         style="top:30%; left:20%; width:12%; height:10%;"
-         onclick="abrirSala('D01')"></div>
+<!-- ================= PISO 2 ================= -->
 
-    <div class="sala" data-name="D02"
-         style="top:30%; left:40%; width:12%; height:10%;"
-         onclick="abrirSala('D02')"></div>
+<!-- Direita (salas grandes) -->
+<div class="sala" data-name="D21"
+     style="top:22%; left:57%; width:18%; height:20%;"
+     onclick="abrirSala('D21')"></div>
 
-    <div class="sala" data-name="D03"
-         style="top:50%; left:20%; width:12%; height:10%;"
-         onclick="abrirSala('D03')"></div>
-  </div>
+<div class="sala" data-name="D22"
+     style="top:52%; left:62%; width:22%; height:30%;"
+     onclick="abrirSala('D22')"></div>
+
+<!-- Centro superior -->
+<div class="sala" data-name="D202"
+     style="top:18%; left:28%; width:18%; height:12%;"
+     onclick="abrirSala('D202')"></div>
+
+<div class="sala" data-name="D203"
+     style="top:18%; left:47%; width:14%; height:12%;"
+     onclick="abrirSala('D203')"></div>
+
+<!-- Centro inferior -->
+<div class="sala" data-name="D205"
+     style="top:38%; left:28%; width:18%; height:16%;"
+     onclick="abrirSala('D205')"></div>
+
+<div class="sala" data-name="D206"
+     style="top:38%; left:47%; width:18%; height:16%;"
+     onclick="abrirSala('D206')"></div>
+
+<!-- Esquerda -->
+<div class="sala" data-name="D204"
+     style="top:36%; left:8%; width:18%; height:16%;"
+     onclick="abrirSala('D204')"></div>
+
+
 
 </div>
 
 <script>
 function mudarPiso(piso){
-  document.getElementById("plantaImg").src = `assets/plantas/piso${piso}.png`;
+  document.getElementById("plantaImg").src = `assets/plantas/piso${piso}.jpg`;
 }
 
 function abrirSala(sala){
