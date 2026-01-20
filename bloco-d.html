@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Bloco D – Plantas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/bloco-d.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>🏫 Bloco D</h2>
+
+  <!-- Botões dos pisos -->
+  <div class="buttons">
+    <button onclick="mudarPiso(0)">Piso 0</button>
+    <button onclick="mudarPiso(1)">Piso 1</button>
+    <button onclick="mudarPiso(2)">Piso 2</button>
+  </div>
+
+  <!-- Planta -->
+  <div class="planta">
+    <img id="plantaImg" src="assets/plantas/piso2.jpg" alt="Planta do Bloco D">
+
+    <!-- SALAS (ajusta posições) -->
+    <div class="sala" data-name="D01"
+         style="top:30%; left:20%; width:12%; height:10%;"
+         onclick="abrirSala('D01')"></div>
+
+    <div class="sala" data-name="D02"
+         style="top:30%; left:40%; width:12%; height:10%;"
+         onclick="abrirSala('D02')"></div>
+
+    <div class="sala" data-name="D03"
+         style="top:50%; left:20%; width:12%; height:10%;"
+         onclick="abrirSala('D03')"></div>
+  </div>
+
+</div>
+
+<script>
+function mudarPiso(piso){
+  document.getElementById("plantaImg").src = `assets/plantas/piso${piso}.png`;
+}
+
+function abrirSala(sala){
+  alert("Sala selecionada: " + sala);
+  // Futuro:
+  // window.location.href = `dashboard.html?sala=${sala}`;
+}
+</script>
+
+</body>
+</html>
