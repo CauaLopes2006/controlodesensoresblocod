@@ -92,3 +92,42 @@ body{
   .grid{ grid-template-columns:1fr }
   .span-2,.span-4{ grid-column: span 1 }
 }
+.back-btn{
+  text-decoration:none;
+  padding:10px 16px;
+  border-radius:14px;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-size:14px;
+  font-weight:700;
+  transition:.2s;
+}
+
+.back-btn:hover{
+  background:rgba(46,224,122,.2);
+  border-color:rgba(46,224,122,.6);
+  color:var(--green);
+}
+.topbar{
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  border-bottom:1px solid var(--border);
+}
+
+/* Centro real */
+.center-title{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.right-space{
+  width:160px; /* mais ou menos o tamanho do botão */
+}
