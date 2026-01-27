@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Bloco D | Sistema de Sensores</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#121824;
+      --border:rgba(255,255,255,.08);
+      --text:#e7eefc;
+      --muted:#9fb0cc;
+      --green:#2ee07a;
+      --shadow:0 20px 40px rgba(0,0,0,.45);
+      --radius:20px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1000px 400px at 10% -10%, rgba(46,224,122,.15), transparent 70%),
+        radial-gradient(900px 400px at 90% 0%, rgba(80,140,255,.15), transparent 65%),
+        var(--bg);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .container{
+      max-width:1100px;
+      width:100%;
+      padding:30px;
+      display:grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap:30px;
+    }
+
+    /* LEFT */
+    .intro{
+      padding:30px;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(46,224,122,.15);
+      color:var(--green);
+      font-weight:700;
+      font-size:13px;
+      margin-bottom:20px;
+    }
+
+    h1{
+      font-size:46px;
+      margin:0 0 16px 0;
+      line-height:1.1;
+    }
+
+    h1 span{
+      color:var(--green);
+    }
+
+    .subtitle{
+      font-size:18px;
+      color:var(--muted);
+      margin-bottom:26px;
+    }
+
+    .desc{
+      font-size:15px;
+      line-height:1.7;
+      color:#cfd9f3;
+      max-width:520px;
+    }
+
+    .school{
+      margin-top:22px;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    /* RIGHT */
+    .cards{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:18px;
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 70%), var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:24px;
+      transition:.25s;
+    }
+
+    .card:hover{
+      transform:translateY(-4px);
+      border-color:rgba(46,224,122,.4);
+    }
+
+    .card h3{
+      margin:0 0 10px 0;
+      font-size:18px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .card p{
+      margin:0 0 16px 0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .btn{
+      display:inline-block;
+      padding:12px 18px;
+      border-radius:14px;
+      background:var(--green);
+      color:#062512;
+      font-weight:800;
+      text-decoration:none;
+      font-size:14px;
+      transition:.2s;
+    }
+
+    .btn.secondary{
+      background:transparent;
+      color:var(--text);
+      border:1px solid var(--border);
+    }
+
+    .btn:hover{
+      filter:brightness(1.1);
+    }
+
+    footer{
+      position:fixed;
+      bottom:12px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    @media(max-width:900px){
+      .container{
+        grid-template-columns:1fr;
+        text-align:center;
+      }
+      .desc{
+        margin:0 auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- INTRO -->
+    <div class="intro">
+      <div class="badge">Projeto UFCD 5425</div>
+
+      <h1>Bloco <span>D</span><br>Sistema de Sensores</h1>
+
+      <div class="subtitle">
+        Monitorização inteligente de salas
+      </div>
+
+      <p class="desc">
+        Este projeto tem como objetivo a monitorização de sensores de temperatura,
+        humidade e outros parâmetros ambientais nas salas do Bloco D, permitindo
+        visualizar dados em tempo real através de um dashboard web.
+      </p>
+
+      <div class="school">
+        Escola Secundária Manuel Teixeira Gomes<br>
+        Portimão, Portugal
+      </div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="cards">
+
+      <div class="card">
+        <h3>📊 Dashboard</h3>
+        <p>
+          Visualização em tempo real dos dados enviados pelos sensores,
+          com gráficos, indicadores e controlos.
+        </p>
+        <a href="dashboard.html" class="btn">Entrar no Dashboard</a>
+      </div>
+
+      <div class="card">
+        <h3>🏫 Plantas do Bloco D</h3>
+        <p>
+          Consulta das plantas do Bloco D, com identificação das salas
+          e sensores associados.
+        </p>
+        <a href="plantas.html" class="btn secondary">Ver Plantas</a>
+      </div>
+
+    </div>
+
+  </div>
+
+  <footer>
+    © 2026 · Projeto de Tecnologias e Programação · Bloco D
+  </footer>
+
+</body>
+</html>
