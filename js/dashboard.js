@@ -16,7 +16,15 @@ function setGauge(value){
 }
 
 /* === CONFIGURAÇÃO DO GRÁFICO === */
-const ctx = document.getElementById("thChart");
+const canvas = document.getElementById("thChart");
+const ctx = canvas.getContext("2d");
+const gradientTemp = ctx.createLinearGradient(0, 0, 0, 280);
+gradientTemp.addColorStop(0, "rgba(46,224,122,0.35)");
+gradientTemp.addColorStop(1, "rgba(46,224,122,0)");
+
+const gradientHum = ctx.createLinearGradient(0, 0, 0, 280);
+gradientHum.addColorStop(0, "rgba(80,140,255,0.35)");
+gradientHum.addColorStop(1, "rgba(80,140,255,0)");
 const labels = [];
 const tempData = [];
 const humData = [];
@@ -27,46 +35,73 @@ const chart = new Chart(ctx, {
     labels,
     datasets: [
       {
-        label: 'Temperatura (°C)',
-        data: tempData,
-        borderColor: '#2ee07a',
-        tension: 0.35,
-        borderWidth: 3,
-        fill: false,
-        pointRadius: 0
-      },
+  label: 'Temperatura (°C)',
+  data: tempData,
+  borderColor: '#2ee07a',
+  backgroundColor: gradientTemp,
+  tension: 0.45,
+  borderWidth: 3,
+  fill: true,
+  pointRadius: 0,
+  pointHoverRadius: 6,
+  pointHoverBackgroundColor: '#2ee07a',
+  pointHoverBorderWidth: 2,
+  pointHoverBorderColor: '#fff'
+},
       {
-        label: 'Humidade (%)',
-        data: humData,
-        borderColor: '#508cff',
-        tension: 0.35,
-        borderWidth: 3,
-        fill: false,
-        pointRadius: 0
-      }
+  label: 'Humidade (%)',
+  data: humData,
+  borderColor: '#508cff',
+  backgroundColor: gradientHum,
+  tension: 0.45,
+  borderWidth: 3,
+  fill: true,
+  pointRadius: 0,
+  pointHoverRadius: 6,
+  pointHoverBackgroundColor: '#508cff',
+  pointHoverBorderWidth: 2,
+  pointHoverBorderColor: '#fff'
+}
     ]
   },
   options: {
-    responsive:true,
-    maintainAspectRatio:false,
-    plugins: {
-      legend: {
-        labels: { color:'#e7eefc', font:{ size:13 } }
+  responsive: true,
+  maintainAspectRatio: false,
+
+  animation: {
+    duration: 900,
+    easing: 'easeOutQuart'
+  },
+
+  plugins: {
+    legend: {
+      labels: {
+        color: '#e7eefc',
+        font: { size: 13 }
       }
     },
-    scales: {
-      x: {
-        ticks:{ color:'#9fb0cc' },
-        grid:{ color:'rgba(255,255,255,.05)' }
-      },
-      y: {
-        ticks:{ color:'#9fb0cc' },
-        grid:{ color:'rgba(255,255,255,.05)' }
-      }
+    tooltip: {
+      backgroundColor: "#121824",
+      titleColor: "#2ee07a",
+      bodyColor: "#e7eefc",
+      borderColor: "#2ee07a",
+      borderWidth: 1
+    }
+  },
+
+  scales: {
+    x: {
+      ticks: { color: '#9fb0cc' },
+      grid: { color: 'rgba(255,255,255,.05)' }
+    },
+    y: {
+      ticks: { color: '#9fb0cc' },
+      grid: { color: 'rgba(255,255,255,.05)' }
     }
   }
+}
 });
-
+chart.canvas.style.filter = "drop-shadow(0 0 8px rgba(46,224,122,0.2))";
 let demoInterval = null;
 let isRunning = false;
 
@@ -79,11 +114,31 @@ function atualizarDados(){
   limi += (Math.random() - 0.5) * 2;
 
   document.getElementById("tempVal").textContent = temp.toFixed(1);
+  const tempCard = document.querySelector(".temp-card");
+
+tempCard.classList.remove("temp-normal","temp-warning","temp-danger");
+
+if(temp < 26){
+  tempCard.classList.add("temp-normal");
+}
+else if(temp < 28){
+  tempCard.classList.add("temp-warning");
+}
+else{
+  tempCard.classList.add("temp-danger");
+}
   document.getElementById("humVal").textContent = hum.toFixed(0);
 
   setGauge(limi);
 
-  labels.push('');
+  const agora = new Date();
+const hora = agora.toLocaleTimeString('pt-PT', {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit'
+});
+
+labels.push(hora);
   tempData.push(temp);
   humData.push(hum);
 

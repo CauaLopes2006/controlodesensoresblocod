@@ -219,3 +219,15 @@ footer{
   background:#ff4d4d;
   color:white;
 }
+
+.temp-normal {
+  border-left: 4px solid #2ee07a;
+}
+
+.temp-warning {
+  border-left: 4px solid #ffb020;
+}
+
+.temp-danger {
+  border-left: 4px solid #ff4d4d;
+}
