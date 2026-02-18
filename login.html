@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Bloco D</title>
+  <link rel="icon" href="img/icon.png">
+
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#121824;
+      --border:rgba(255,255,255,.08);
+      --text:#e7eefc;
+      --muted:#9fb0cc;
+      --green:#2ee07a;
+      --shadow:0 20px 40px rgba(0,0,0,.45);
+      --radius:18px;
+      --transition:0.35s ease;
+    }
+
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f9fbff;
+        --panel:#fff;
+        --text:#0b0f14;
+        --muted:#546172;
+        --border:rgba(0,0,0,.1);
+        --shadow:0 10px 25px rgba(0,0,0,.15);
+      }
+    }
+
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:
+        radial-gradient(1000px 400px at 10% -10%, rgba(46,224,122,.15), transparent 70%),
+        radial-gradient(900px 400px at 90% 0%, rgba(80,140,255,.15), transparent 65%),
+        var(--bg);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+    }
+
+    .login-box{
+      width:350px;
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:36px;
+      text-align:center;
+      animation:fadeIn .6s ease forwards;
+    }
+
+    @keyframes fadeIn{
+      from{ opacity:0; transform:translateY(20px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+
+    h1{
+      font-size:32px;
+      margin:0 0 10px;
+      color:var(--green);
+      letter-spacing:-0.5px;
+    }
+
+    p{
+      color:var(--muted);
+      font-size:14px;
+      margin-bottom:26px;
+    }
+
+    .form-group{
+      margin-bottom:18px;
+      text-align:left;
+    }
+
+    label{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:6px;
+      display:block;
+    }
+
+    input{
+      width:100%;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      font-size:15px;
+      outline:none;
+      transition:border-color var(--transition), background var(--transition);
+    }
+
+    input:focus{
+      border-color:var(--green);
+      background:rgba(46,224,122,.1);
+    }
+
+    .btn{
+      width:100%;
+      padding:12px 0;
+      border:none;
+      border-radius:12px;
+      background:var(--green);
+      color:#062512;
+      font-weight:800;
+      font-size:15px;
+      cursor:pointer;
+      transition:filter .25s ease, transform .25s ease;
+    }
+
+    .btn:hover{
+      filter:brightness(1.1);
+      transform:translateY(-2px);
+    }
+
+    .msg-error{
+      color:#ff4d4d;
+      font-size:13px;
+      margin-top:10px;
+      display:none;
+    }
+
+    .footer-login{
+      text-align:center;
+      font-size:12px;
+      color:var(--muted);
+      margin-top:24px;
+    }
+
+    @media(max-width:400px){
+      .login-box{ width:90%; padding:26px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="login-box">
+    <h1>Bloco D</h1>
+    <p>Inicie sessão para aceder ao sistema</p>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="user">Utilizador</label>
+        <input type="text" id="user" required placeholder="ex: admin">
+      </div>
+
+      <div class="form-group">
+        <label for="pass">Palavra‑passe</label>
+        <input type="password" id="pass" required placeholder="********">
+      </div>
+
+      <button class="btn" type="submit">Entrar</button>
+      <div class="msg-error" id="errorMsg">Credenciais inválidas</div>
+    </form>
+
+    <div class="footer-login">
+      © 2026 · Sistema de Sensores Bloco D
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = document.getElementById('user').value.trim().toLowerCase();
+      const pass = document.getElementById('pass').value.trim();
+
+      // Simulação de validação local
+      if (user === 'admin' && pass === '1234') {
+        localStorage.setItem('login', 'true');
+        window.location.href = 'index.html'; // 🔁 Direciona para a página inicial
+      } else {
+        errorMsg.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

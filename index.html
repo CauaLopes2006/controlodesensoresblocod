@@ -2,221 +2,352 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>Bloco D | Sistema de Sensores</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- META SEO -->
+  <title>Bloco D | Sistema de Sensores</title>
+  <meta name="description" content="Monitorização inteligente de sensores de temperatura e humidade das salas do Bloco D.">
+  <meta name="author" content="Equipa UFCD 5425">
+  <meta name="theme-color" content="#2ee07a">
+
+  <!-- FAVICON -->
+  <link rel="icon" href="img/icon.png" type="image/png">
+
+  <!-- STYLES -->
   <style>
-    :root{
-      --bg:#0b0f14;
-      --panel:#121824;
-      --border:rgba(255,255,255,.08);
-      --text:#e7eefc;
-      --muted:#9fb0cc;
-      --green:#2ee07a;
-      --shadow:0 20px 40px rgba(0,0,0,.45);
-      --radius:20px;
-    }
+  :root{
+  --bg:#0b0f14;
+  --panel:#121824;
+  --border:rgba(255,255,255,.08);
+  --text:#e7eefc;
+  --muted:#9fb0cc;
+  --green:#2ee07a;
+  --green-soft:rgba(46,224,122,.15);
+  --shadow:0 20px 40px rgba(0,0,0,.45);
+  --radius:20px;
+  --transition:0.35s ease;
+}
 
-    *{ box-sizing:border-box; }
+/* MODO CLARO AUTOMÁTICO */
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#f9fbff;
+    --panel:#ffffff;
+    --border:rgba(0,0,0,.1);
+    --text:#091017;
+    --muted:#546172;
+    --green:#15b767;
+    --green-soft:rgba(21,183,103,.08);
+    --shadow:0 10px 25px rgba(0,0,0,.15);
+  }
+}
 
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:
-        radial-gradient(1000px 400px at 10% -10%, rgba(46,224,122,.15), transparent 70%),
-        radial-gradient(900px 400px at 90% 0%, rgba(80,140,255,.15), transparent 65%),
-        var(--bg);
-      color:var(--text);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
+*{ box-sizing:border-box; }
 
-    .container{
-      max-width:1100px;
-      width:100%;
-      padding:30px;
-      display:grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap:30px;
-    }
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(1000px 400px at 10% -10%, rgba(46,224,122,.15), transparent 70%),
+    radial-gradient(900px 400px at 90% 0%, rgba(80,140,255,.15), transparent 65%),
+    var(--bg);
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:background var(--transition), color var(--transition);
+}
 
-    /* LEFT */
-    .intro{
-      padding:30px;
-    }
+main{
+  max-width:1100px;
+  width:100%;
+  padding:30px;
+  display:grid;
+  grid-template-columns:1.2fr 1fr;
+  gap:30px;
+}
 
-    .badge{
-      display:inline-block;
-      padding:8px 14px;
-      border-radius:999px;
-      background:rgba(46,224,122,.15);
-      color:var(--green);
-      font-weight:700;
-      font-size:13px;
-      margin-bottom:20px;
-    }
+.intro{ padding:30px; }
 
-    h1{
-      font-size:46px;
-      margin:0 0 16px 0;
-      line-height:1.1;
-    }
+/* BADGE */
+.badge{
+  display:inline-block;
+  padding:8px 14px;
+  border-radius:999px;
+  background:var(--green-soft);
+  color:var(--green);
+  font-weight:700;
+  font-size:13px;
+  margin-bottom:20px;
+  transition:background var(--transition), color var(--transition);
+}
 
-    h1 span{
-      color:var(--green);
-    }
+/* TITULOS */
+h1{
+  font-size:46px;
+  margin:0 0 16px;
+  line-height:1.1;
+  letter-spacing:-1px;
+}
+h1 span{ color:var(--green); }
 
-    .subtitle{
-      font-size:18px;
-      color:var(--muted);
-      margin-bottom:26px;
-    }
+.subtitle{
+  font-size:18px;
+  color:var(--muted);
+  margin-bottom:26px;
+}
 
-    .desc{
-      font-size:15px;
-      line-height:1.7;
-      color:#cfd9f3;
-      max-width:520px;
-    }
+/* TEXTO */
+.desc{
+  font-size:15px;
+  line-height:1.7;
+  color:#cfd9f3;
+  max-width:520px;
+  transition:color var(--transition);
+}
 
-    .school{
-      margin-top:22px;
-      font-size:14px;
-      color:var(--muted);
-    }
+.school{
+  margin-top:22px;
+  font-size:14px;
+  color:var(--muted);
+}
 
-    /* RIGHT */
-    .cards{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:18px;
-    }
+/* CARDS */
+.cards{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:18px;
+}
 
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 70%), var(--panel);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:24px;
-      transition:.25s;
-    }
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 70%), var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:24px;
+  transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  position:relative;
+  overflow:hidden;
+}
 
-    .card:hover{
-      transform:translateY(-4px);
-      border-color:rgba(46,224,122,.4);
-    }
+.card:hover{
+  transform:translateY(-6px);
+  border-color:rgba(46,224,122,.4);
+  box-shadow:0 14px 28px rgba(46,224,122,.1);
+}
 
-    .card h3{
-      margin:0 0 10px 0;
-      font-size:18px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
+/* EFEITO BRILHO AO HOVER */
+.card::before{
+  content:"";
+  position:absolute;
+  top:0;left:-75%;
+  width:50%;
+  height:100%;
+  background:linear-gradient(120deg,
+    transparent,
+    rgba(255,255,255,0.15),
+    transparent);
+  transition:all .7s ease;
+}
+.card:hover::before{
+  left:125%;
+}
 
-    .card p{
-      margin:0 0 16px 0;
-      font-size:14px;
-      color:var(--muted);
-    }
+.card h2{
+  margin:0 0 10px;
+  font-size:18px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
 
-    .btn{
-      display:inline-block;
-      padding:12px 18px;
-      border-radius:14px;
-      background:var(--green);
-      color:#062512;
-      font-weight:800;
-      text-decoration:none;
-      font-size:14px;
-      transition:.2s;
-    }
+.card p{
+  margin:0 0 16px;
+  font-size:14px;
+  color:var(--muted);
+}
 
-    .btn.secondary{
-      background:transparent;
-      color:var(--text);
-      border:1px solid var(--border);
-    }
+/* BOTÕES */
+.btn{
+  display:inline-block;
+  padding:12px 18px;
+  border-radius:14px;
+  background:var(--green);
+  color:#062512;
+  font-weight:800;
+  text-decoration:none;
+  font-size:14px;
+  transition:transform 0.2s ease, filter 0.2s ease;
+}
+.btn:hover{
+  filter:brightness(1.1);
+  transform:translateY(-3px);
+}
 
-    .btn:hover{
-      filter:brightness(1.1);
-    }
+.btn.secondary{
+  background:transparent;
+  color:var(--text);
+  border:1px solid var(--border);
+  transition:border-color var(--transition), color var(--transition), transform 0.2s ease;
+}
+.btn.secondary:hover{
+  border-color:var(--green);
+  color:var(--green);
+  transform:translateY(-3px);
+}
 
-    footer{
-      position:fixed;
-      bottom:12px;
-      font-size:12px;
-      color:var(--muted);
-    }
+/* RODAPÉ */
+footer{
+  position:fixed;
+  bottom:12px;
+  left:0;
+  width:100%;
+  text-align:center;
+  font-size:12px;
+  color:var(--muted);
+  transition:color var(--transition);
+}
 
-    @media(max-width:900px){
-      .container{
-        grid-template-columns:1fr;
-        text-align:center;
-      }
-      .desc{
-        margin:0 auto;
-      }
-    }
-  </style>
+/* RESPONSIVIDADE */
+@media(max-width:900px){
+  main{
+    grid-template-columns:1fr;
+    text-align:center;
+    padding:20px;
+  }
+  .desc{ margin:0 auto; }
+}
+
+@media(max-width:550px){
+  h1{ font-size:34px; }
+  .btn{ width:100%; text-align:center; }
+}
+
+/* SELETOR DE TEMA */
+.theme-selector{
+  position:fixed;
+  top:16px;
+  right:16px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(0,0,0,.25);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:6px 12px;
+  backdrop-filter:blur(10px);
+  z-index:999;
+}
+
+.theme-selector span{
+  font-size:13px;
+  color:var(--muted);
+}
+
+.theme-btn{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  border:none;
+  cursor:pointer;
+  transition:transform .2s ease;
+}
+.theme-btn:hover{
+  transform:scale(1.2);
+}
+
+.theme-btn[data-color="#2ee07a"]{ background:#2ee07a; }
+.theme-btn[data-color="#508cff"]{ background:#508cff; }
+.theme-btn[data-color="#b266ff"]{ background:#b266ff; }
+.theme-btn[data-color="#ff9a3c"]{ background:#ff9a3c; }
+
+</style>
 </head>
 
 <body>
+  <!-- HEADER -->
+  <header>
+    <div class="badge" aria-label="Identificação do projeto">Projeto UFCD 5425</div>
+  </header>
+<!-- SELETOR DE TEMA -->
+<div class="theme-selector">
+  <span>Tema:</span>
+  <button class="theme-btn" data-color="#2ee07a" title="Verde"></button>
+  <button class="theme-btn" data-color="#508cff" title="Azul"></button>
+  <button class="theme-btn" data-color="#b266ff" title="Roxo"></button>
+  <button class="theme-btn" data-color="#ff9a3c" title="Laranja"></button>
+</div>
 
-  <div class="container">
+  <!-- MAIN CONTENT -->
+  <main>
+    <!-- INTRODUÇÃO -->
+    <section class="intro" aria-labelledby="titulo-principal">
+      <h1 id="titulo-principal">Bloco <span>D</span><br>Sistema de Sensores</h1>
 
-    <!-- INTRO -->
-    <div class="intro">
-      <div class="badge">Projeto UFCD 5425</div>
-
-      <h1>Bloco <span>D</span><br>Sistema de Sensores</h1>
-
-      <div class="subtitle">
-        Monitorização inteligente de salas
-      </div>
+      <p class="subtitle">Monitorização inteligente de salas</p>
 
       <p class="desc">
         Este projeto tem como objetivo a monitorização de sensores de temperatura,
         humidade e outros parâmetros ambientais nas salas do Bloco D, permitindo
-        visualizar dados em tempo real através de um dashboard web.
+        visualizar e gerir dados em tempo real através de um dashboard web interativo.
       </p>
 
-      <div class="school">
+      <address class="school">
         Escola Secundária Manuel Teixeira Gomes<br>
         Portimão, Portugal
-      </div>
-    </div>
+      </address>
+    </section>
 
-    <!-- CARDS -->
-    <div class="cards">
-
-      <div class="card">
-        <h3>📊 Dashboard</h3>
+    <!-- NAVEGAÇÃO PRINCIPAL -->
+    <section class="cards" aria-label="Acessos e funcionalidades do projeto">
+      <article class="card">
+        <h2>📊 Dashboard</h2>
         <p>
           Visualização em tempo real dos dados enviados pelos sensores,
-          com gráficos, indicadores e controlos.
+          com gráficos, indicadores e controlos interativos.
         </p>
         <a href="dashboard.html" class="btn">Entrar no Dashboard</a>
-      </div>
+      </article>
 
-      <div class="card">
-        <h3>🏫 Plantas do Bloco D</h3>
+      <article class="card">
+        <h2>🏫 Plantas do Bloco D</h2>
         <p>
           Consulta das plantas do Bloco D, com identificação das salas
           e sensores associados.
         </p>
         <a href="plantas.html" class="btn secondary">Ver Plantas</a>
-      </div>
+      </article>
 
-    </div>
+        <article class="card">
+    <h2>⚙️ Gestão de Sensores</h2>
+    <p>Adicione, visualize e remova sensores registados no sistema.
+       Ferramenta para administração e manutenção do projeto.</p>
+    <a href="gestao-sensores.html" class="btn secondary">Abrir Gestão</a>
+  </article>
 
-  </div>
+    </section>
+  </main>
 
+  <!-- FOOTER -->
   <footer>
     © 2026 · Projeto de Tecnologias e Programação · Bloco D
   </footer>
+  <script>
+  const root = document.documentElement;
+  const savedColor = localStorage.getItem('themeColor');
+  if(savedColor){
+    root.style.setProperty('--green', savedColor);
+  }
+
+  document.querySelectorAll('.theme-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const color = btn.dataset.color;
+      localStorage.setItem('themeColor', color);
+      root.style.setProperty('--green', color);
+    });
+  });
+</script>
 
 </body>
 </html>

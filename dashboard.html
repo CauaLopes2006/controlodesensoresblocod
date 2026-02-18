@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <title>Dashboard | Bloco D</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- FAVICON -->
+  <link rel="icon" href="img/icon.png" type="image/png">
 
   <!-- CSS -->
   <link rel="stylesheet" href="css/dashboard.css">
@@ -13,64 +16,104 @@
 </head>
 
 <body>
+  <!-- TOPO -->
+  <header class="topbar">
+    <div class="demo-control">
+  <span id="systemStatus" class="status offline">🔴 Sistema Pausado</span>
+  <button id="toggleDemo" class="demo-btn">Iniciar Simulação</button>
+</div>
+    <a href="index.html" class="back-btn">⬅ Voltar</a>
 
-<header class="topbar">
-  <a href="index.html" class="back-btn">⬅ Voltar ao Início</a>
+    <div class="brand center-title">
+      <span class="dot"></span>
+      <div>Dashboard · Bloco D</div>
+    </div>
 
-  <div class="brand center-title">
-    <span class="dot"></span>
-    <div>Dashboard · Bloco D</div>
-  </div>
+    <div class="right-space"></div>
+  </header>
 
-  <!-- espaço fantasma para centrar -->
-  <div class="right-space"></div>
-</header>
+  <!-- CONTEÚDO -->
+  <main class="wrap">
+    <section class="grid">
 
-
-
-<main class="wrap">
-  <section class="grid">
-
-    <div class="card span-2">
-      <h3>🟢 LIMI</h3>
-      <div class="gaugeWrap">
-        <div class="gauge">
-          <svg viewBox="0 0 200 120">
-            <path d="M20,100 A80,80 0 0 1 180,100"
-              fill="none" stroke="rgba(255,255,255,.1)"
-              stroke-width="16" stroke-linecap="round"/>
-            <path id="gaugeArc"
-              d="M20,100 A80,80 0 0 1 180,100"
-              fill="none" stroke="var(--green)"
-              stroke-width="16" stroke-linecap="round"
-              stroke-dasharray="251" stroke-dashoffset="251"/>
-          </svg>
-          <div class="num"><span id="limiVal">0</span></div>
+      <!-- GAUGE -->
+      <div class="card span-2 gauge-card">
+        <h3>🟢 Nível do Sensor</h3>
+        <div class="gaugeWrap">
+          <div class="gauge">
+            <svg viewBox="0 0 200 120">
+              <path d="M20,100 A80,80 0 0 1 180,100"
+                fill="none" stroke="rgba(255,255,255,.08)"
+                stroke-width="16" stroke-linecap="round"/>
+              <path id="gaugeArc"
+                d="M20,100 A80,80 0 0 1 180,100"
+                fill="none" stroke="var(--green)"
+                stroke-width="16" stroke-linecap="round"
+                stroke-dasharray="251" stroke-dashoffset="251"/>
+            </svg>
+            <div class="num"><span id="limiVal">0</span><small>%</small></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="card">
-      <h3>🌡️ Temperatura</h3>
-      <div class="value"><span id="tempVal">--</span> °C</div>
-    </div>
-
-    <div class="card">
-      <h3>💧 Humidade</h3>
-      <div class="value"><span id="humVal">--</span> %</div>
-    </div>
-
-    <div class="card span-4">
-      <h3>📈 Histórico</h3>
-      <div class="chartBox">
-        <canvas id="thChart"></canvas>
+      <!-- TEMPERATURA -->
+      <div class="card temp-card">
+        <h3>🌡️ Temperatura</h3>
+        <div class="value"><span id="tempVal">--</span>°C</div>
       </div>
+
+      <!-- HUMIDADE -->
+      <div class="card hum-card">
+        <h3>💧 Humidade</h3>
+        <div class="value"><span id="humVal">--</span>%</div>
+      </div>
+
+      <!-- STATUS DE SENSORES -->
+<div class="card">
+  <h3>🧩 Sensores Ativos</h3>
+  <div class="value"><span id="sensorCount">--</span></div>
+  <p style="color:var(--muted);font-size:13px;margin-top:4px;">
+    Total registado no sistema
+  </p>
+</div>
+
+      <!-- HISTÓRICO -->
+      <div class="card span-4">
+        <h3>📈 Histórico (últimos 15 registos)</h3>
+        <div class="chartBox">
+          <canvas id="thChart"></canvas>
+        </div>
+      </div>
+        <!-- ESTATÍSTICAS -->
+<div class="card span-4">
+  <h3>📊 Estatísticas Gerais</h3>
+  <div class="stats-grid">
+    <div class="stat-item">
+      <span>Média Temp</span>
+      <strong id="avgTemp">--</strong>
     </div>
+    <div class="stat-item">
+      <span>Média Hum</span>
+      <strong id="avgHum">--</strong>
+    </div>
+    <div class="stat-item">
+      <span>Máx Temp</span>
+      <strong id="maxTemp">--</strong>
+    </div>
+    <div class="stat-item">
+      <span>Mín Temp</span>
+      <strong id="minTemp">--</strong>
+    </div>
+  </div>
+</div>
+    </section>
+  </main>
 
-  </section>
-</main>
+  <footer>
+    <p>© 2026 — Sistema de Sensores do Bloco D | Monitorização em tempo real</p>
+  </footer>
 
-<!-- JS -->
-<script src="js/dashboard.js"></script>
+  <!-- SCRIPT -->
+  <script src="js/dashboard.js"></script>
 </body>
 </html>

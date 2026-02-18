@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão de Sensores | Bloco D</title>
+  <link rel="icon" href="img/icon.png">
+
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#121824;
+      --border:rgba(255,255,255,.08);
+      --text:#e7eefc;
+      --muted:#9fb0cc;
+      --green:#2ee07a;
+      --shadow:0 20px 40px rgba(0,0,0,.45);
+      --radius:18px;
+      --transition:0.3s ease;
+    }
+
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:system-ui,Arial,sans-serif;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px 30px;
+      border-bottom:1px solid var(--border);
+      background:rgba(0,0,0,.15);
+      backdrop-filter:blur(10px);
+    }
+
+    header h1{
+      font-size:22px;
+      color:var(--green);
+      margin:0;
+    }
+
+    a.voltar{
+      color:var(--text);
+      text-decoration:none;
+      border:1px solid var(--border);
+      padding:8px 16px;
+      border-radius:10px;
+      transition:all var(--transition);
+    }
+    a.voltar:hover{
+      color:var(--green);
+      border-color:var(--green);
+    }
+
+    main{
+      max-width:800px;
+      margin:40px auto;
+      padding:20px;
+    }
+
+    h2{ margin-top:0; color:var(--green); }
+
+    /* FORM */
+    form{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:20px;
+      margin-bottom:30px;
+      box-shadow:var(--shadow);
+    }
+
+    label{
+      display:block;
+      font-size:14px;
+      margin-bottom:6px;
+      color:var(--muted);
+    }
+
+    input{
+      width:100%;
+      padding:10px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      font-size:15px;
+      margin-bottom:14px;
+      outline:none;
+      transition:border-color var(--transition);
+    }
+
+    input:focus{ border-color:var(--green); }
+
+    button{
+      padding:10px 18px;
+      border:none;
+      border-radius:10px;
+      background:var(--green);
+      color:#062512;
+      font-weight:700;
+      cursor:pointer;
+      transition:filter .25s ease, transform .25s ease;
+    }
+
+    button:hover{ filter:brightness(1.1); transform:translateY(-2px); }
+
+    /* LISTA */
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:var(--panel);
+      border-radius:var(--radius);
+      overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+
+    th, td{
+      padding:14px;
+      border-bottom:1px solid var(--border);
+      text-align:left;
+      font-size:14px;
+      color:var(--text);
+    }
+
+    th{ color:var(--muted); text-transform:uppercase; font-size:12px; }
+    tr:hover td{ background:rgba(46,224,122,.05); }
+
+    .btn-remove{
+      background:transparent;
+      border:1px solid #ff4d4d;
+      color:#ff4d4d;
+      padding:6px 12px;
+      border-radius:8px;
+      cursor:pointer;
+      transition:all .25s;
+    }
+    .btn-remove:hover{
+      background:#ff4d4d;
+      color:#fff;
+    }
+
+    @media(max-width:600px){
+      th, td{ font-size:13px; }
+      form{ padding:16px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Gestão de Sensores</h1>
+    <a href="index.html" class="voltar">⬅ Voltar</a>
+  </header>
+
+  <main>
+    <h2>Adicionar Novo Sensor</h2>
+
+    <form id="sensorForm">
+      <label for="nome">Nome do Sensor</label>
+      <input type="text" id="nome" required placeholder="ex: Sensor D101">
+
+      <label for="sala">Sala</label>
+      <input type="text" id="sala" required placeholder="ex: D101">
+
+      <label for="tipo">Tipo</label>
+      <input type="text" id="tipo" required placeholder="Temperatura / Humidade / Movimento">
+
+      <button type="submit">Adicionar Sensor</button>
+    </form>
+
+    <h2>Sensores Registados</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Sala</th>
+          <th>Tipo</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="sensorTableBody">
+        <!-- Sensores aparecerão aqui -->
+      </tbody>
+    </table>
+  </main>
+
+  <script>
+    const form = document.getElementById('sensorForm');
+    const tabela = document.getElementById('sensorTableBody');
+
+    // Carregar lista salva
+    const sensores = JSON.parse(localStorage.getItem('sensores')) || [];
+
+    function atualizarTabela(){
+      tabela.innerHTML = sensores.map((s, i) => `
+        <tr>
+          <td>${s.nome}</td>
+          <td>${s.sala}</td>
+          <td>${s.tipo}</td>
+          <td><button class="btn-remove" onclick="removerSensor(${i})">Remover</button></td>
+        </tr>
+      `).join('');
+      localStorage.setItem('sensores', JSON.stringify(sensores));
+    }
+
+    function removerSensor(index){
+      sensores.splice(index,1);
+      atualizarTabela();
+    }
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const novo = {
+        nome: document.getElementById('nome').value.trim(),
+        sala: document.getElementById('sala').value.trim(),
+        tipo: document.getElementById('tipo').value.trim()
+      }
+      sensores.push(novo);
+      atualizarTabela();
+      form.reset();
+    });
+
+    atualizarTabela();
+  </script>
+</body>
+</html>

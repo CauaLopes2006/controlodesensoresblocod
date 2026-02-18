@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piso - Bloco D</title>
+
+<style>
+body{
+  margin:0;
+  background:#0b0f14;
+  font-family:system-ui;
+  color:white;
+}
+
+h2{
+  text-align:center;
+}
+
+.map-wrapper{
+  position:relative;
+  max-width:1000px;
+  margin:40px auto;
+}
+
+.map-wrapper img{
+  width:100%;
+  display:block;
+  border-radius:20px;
+}
+
+.overlay{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+}
+
+.overlay rect{
+  fill: transparent;
+  stroke: transparent;
+}
+
+.overlay rect.ativo{
+  fill: rgba(46,224,122,0.35);
+}
+
+.overlay rect.alerta{
+  fill: rgba(255,77,77,0.4);
+  animation: piscar 1s infinite;
+}
+
+@keyframes piscar{
+  0%{opacity:1;}
+  50%{opacity:0.5;}
+  100%{opacity:1;}
+}
+
+.room-label{
+  background: rgba(0,0,0,0.6);
+  padding:4px 8px;
+  border-radius:8px;
+  font-size:12px;
+  backdrop-filter: blur(4px);
+  position:absolute;
+  transform: translate(-50%, -50%);
+  pointer-events:none;
+}
+
+.controls{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.btn{
+  background:#121824;
+  color:white;
+  border:1px solid #2ee07a;
+  padding:8px 18px;
+  margin:0 5px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.btn:hover{
+  background:#2ee07a;
+  color:#0b0f14;
+}
+
+.side-panel{
+  position:fixed;
+  right:-320px;
+  top:0;
+  width:300px;
+  height:100%;
+  background:#121824;
+  padding:20px;
+  transition:.4s ease;
+  box-shadow:-5px 0 20px rgba(0,0,0,.5);
+}
+
+.side-panel.open{
+  right:0;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2 id="titulo">🗺 Piso 0 - Bloco D</h2>
+
+<div id="statusPiso" style="text-align:center;margin-bottom:10px;font-weight:bold;color:#2ee07a;">
+🟢 Piso Normal
+</div>
+
+<div class="controls">
+  <button class="btn" onclick="trocarPiso(0)">Piso 0</button>
+  <button class="btn" onclick="trocarPiso(1)">Piso 1</button>
+</div>
+
+<div class="map-wrapper">
+  <img id="plantaImg" src="assets/plantas/piso0.jpg">
+  <div id="svgContainer"></div>
+</div>
+
+<div id="sidePanel" class="side-panel">
+  <h3 id="panelTitle">Sala</h3>
+  <div id="panelContent">Sem dados</div>
+  <br>
+  <button class="btn" onclick="fecharPainel()">⬅ Voltar</button>
+</div>
+
+<script>
+
+let pisoAtual = 0;
+
+const pisos = {
+
+  0: {
+    width: 979,
+    height: 1177,
+    svg: `
+      <svg class="overlay" viewBox="0 0 979 1177" preserveAspectRatio="none">
+        <rect id="D5" x="300" y="156" width="314" height="250"/>
+        <rect id="LD3" x="54" y="325" width="247" height="239"/>
+        <rect id="ZPF" x="59" y="566" width="240" height="157"/>
+        <rect id="LD4" x="59" y="723" width="240" height="240"/>
+        <rect id="IS" x="96" y="961" width="207" height="79"/>
+        <rect id="GAB" x="370" y="886" width="233" height="245"/>
+        <rect id="LD1" x="691" y="247" width="224" height="240"/>
+        <rect id="ZPQ" x="693" y="484" width="222" height="320"/>
+        <rect id="LD2" x="688" y="804" width="227" height="238"/>
+      </svg>
+    `
+  },
+
+  1: {
+    width: 976,
+    height: 1173,
+    svg: `
+      <svg class="overlay" viewBox="0 0 976 1173" preserveAspectRatio="none">
+        <rect id="P1_S1" x="304" y="155" width="312" height="242"/>
+        <rect id="P1_S2" x="56" y="318" width="245" height="157"/>
+        <rect id="P1_S3" x="58" y="477" width="244" height="477"/>
+        <rect id="P1_S4" x="369" y="880" width="231" height="242"/>
+        <rect id="P1_S5" x="617" y="243" width="71" height="153"/>
+        <rect id="P1_S6" x="691" y="241" width="225" height="236"/>
+        <rect id="P1_S7" x="691" y="477" width="221" height="80"/>
+        <rect id="P1_S8" x="695" y="555" width="217" height="242"/>
+        <rect id="P1_S9" x="94" y="959" width="271" height="74"/>
+        <rect id="P1_S10" x="690" y="801" width="222" height="232"/>
+      </svg>
+    `
+  }
+};
+
+function carregarSVG(piso){
+  document.getElementById("svgContainer").innerHTML = pisos[piso].svg;
+  pisoAtual = piso;
+}
+
+function atualizarMapa(){
+
+  document.querySelectorAll(".room-label").forEach(e => e.remove());
+
+  const dadosMapa = JSON.parse(localStorage.getItem("dadosMapa")) || {};
+  let alertaGlobal = false;
+
+  document.querySelectorAll("#svgContainer rect").forEach(rect => {
+
+    rect.classList.remove("ativo","alerta");
+
+    const sala = rect.id;
+    const dados = dadosMapa[sala];
+
+    if(dados){
+
+      rect.classList.add("ativo");
+
+      if(dados.alerta){
+        rect.classList.add("alerta");
+        alertaGlobal = true;
+      }
+
+      criarLabel(rect, dados.temperatura + "°C");
+
+      rect.onclick = () => abrirPainelSala(sala, dados);
+    }
+
+  });
+
+  const status = document.getElementById("statusPiso");
+  status.innerText = alertaGlobal ? "🔴 Piso em Alerta" : "🟢 Piso Normal";
+  status.style.color = alertaGlobal ? "#ff4d4d" : "#2ee07a";
+}
+
+function criarLabel(rect, texto){
+
+  const svg = document.querySelector("#svgContainer svg");
+  if(!svg) return;
+
+  const bbox = rect.getBBox();
+  const svgRect = svg.getBoundingClientRect();
+
+  const scaleX = svgRect.width / pisos[pisoAtual].width;
+  const scaleY = svgRect.height / pisos[pisoAtual].height;
+
+  const centerX = (bbox.x + bbox.width/2) * scaleX;
+  const centerY = (bbox.y + bbox.height/2) * scaleY;
+
+  const label = document.createElement("div");
+  label.className = "room-label";
+  label.innerText = texto;
+  label.style.left = centerX + "px";
+  label.style.top = centerY + "px";
+
+  document.querySelector(".map-wrapper").appendChild(label);
+}
+
+function abrirPainelSala(sala, dados){
+  document.getElementById("panelTitle").innerText = sala;
+  document.getElementById("panelContent").innerHTML = `
+    <strong>Temperatura:</strong> ${dados.temperatura}°C<br>
+    <strong>Humidade:</strong> ${dados.humidade}%<br>
+    <strong>Status:</strong> ${dados.alerta ? "⚠️ Alerta" : "🟢 Normal"}
+  `;
+  document.getElementById("sidePanel").classList.add("open");
+}
+
+function fecharPainel(){
+  document.getElementById("sidePanel").classList.remove("open");
+}
+
+function trocarPiso(piso){
+  document.getElementById("plantaImg").src = "assets/plantas/piso" + piso + ".jpg";
+  carregarSVG(piso);
+  atualizarMapa();
+  document.getElementById("titulo").innerText = "🗺 Piso " + piso + " - Bloco D";
+}
+
+window.onload = function(){
+  carregarSVG(0);
+  atualizarMapa();
+};
+
+setInterval(atualizarMapa, 2000);
+
+</script>
+
+</body>
+</html>
